@@ -10,7 +10,29 @@ const LandingPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [yearRange, setYearRange] = useState({ min: '', max: '' });
+  const [ratingRange, setRatingRange] = useState({ min: '', max: '' });
+  const [error, setError] = useState(null);
   const observer = useRef();
+  const debounceTimeout = useRef(null);
+
+  // Fetch genres on component mount
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}`);
+        const data = await response.json();
+        console.log('Fetched genres:', data.genres);
+        setGenres(data.genres || []);
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+        setGenres([{ id: 28, name: 'Action' }, { id: 35, name: 'Comedy' }, { id: 18, name: 'Drama' }]);
+      }
+    };
+    fetchGenres();
+  }, []);
 
   const lastMovieRef = useCallback(
     (node) => {
@@ -25,40 +47,69 @@ const LandingPage = () => {
     [hasMore]
   );
 
-  // Fetch search results
+  // Debounced fetch function
+  const fetchSearchResults = useCallback(async () => {
+    if (searchTerm.trim() === '' && !selectedGenre && !yearRange.min && !yearRange.max && !ratingRange.min && !ratingRange.max) {
+      setSearchResults([]);
+      setPage(1);
+      setError(null);
+      return;
+    }
+
+    try {
+      const endpoint = searchTerm.trim() ? 'search/movie' : 'discover/movie';
+      const url = new URL(`${BASE_URL}/${endpoint}`);
+      url.searchParams.append('api_key', API_KEY);
+      if (searchTerm.trim()) url.searchParams.append('query', searchTerm);
+      if (selectedGenre) url.searchParams.append('with_genres', selectedGenre);
+      if (yearRange.min) url.searchParams.append('primary_release_date.gte', `${yearRange.min}-01-01`);
+      if (yearRange.max) url.searchParams.append('primary_release_date.lte', `${yearRange.max}-12-31`);
+      if (ratingRange.min) url.searchParams.append('vote_average.gte', ratingRange.min);
+      if (ratingRange.max) url.searchParams.append('vote_average.lte', ratingRange.max);
+      url.searchParams.append('page', page);
+
+      console.log('Fetching URL:', url.toString());
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch movies');
+      const data = await response.json();
+      console.log('API response:', data);
+
+      if (page === 1) {
+        setSearchResults(data.results || []);
+      } else {
+        setSearchResults((prev) => [...prev, ...(data.results || [])]);
+      }
+
+      setHasMore(data.page < data.total_pages);
+      console.log('hasMore:', data.page < data.total_pages, 'Current page:', data.page, 'Total pages:', data.total_pages);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+      setError('Failed to load movies. Please try again later.');
+    }
+  }, [searchTerm, page, selectedGenre, yearRange, ratingRange]);
+
+  // Fetch search results with debouncing
   useEffect(() => {
-    const fetchSearchResults = async () => {
-      if (searchTerm.trim() === '') {
-        setSearchResults([]);
-        setPage(1);
-        return;
-      }
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      fetchSearchResults();
+    }, 300); // 300ms debounce
 
-      try {
-        const response = await fetch(
-          `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(searchTerm)}&page=${page}`
-        );
-        const data = await response.json();
+    return () => clearTimeout(debounceTimeout.current);
+  }, [fetchSearchResults]);
 
-        if (page === 1) {
-          setSearchResults(data.results || []);
-        } else {
-          setSearchResults((prev) => [...prev, ...(data.results || [])]);
-        }
-
-        setHasMore(data.page < data.total_pages);
-      } catch (error) {
-        console.error('Error fetching search results:', error);
-      }
-    };
-
-    fetchSearchResults();
-  }, [searchTerm, page]);
-
-  // Reset on search term change
+  // Reset page on filter or search term change
   useEffect(() => {
     setPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, selectedGenre, yearRange, ratingRange]);
+
+  // Reset filters
+  const resetFilters = () => {
+    setSelectedGenre('');
+    setYearRange({ min: '', max: '' });
+    setRatingRange({ min: '', max: '' });
+  };
 
   return (
     <div className="min-h-screen transition-colors duration-300">
@@ -75,8 +126,78 @@ const LandingPage = () => {
         />
       </header>
 
+      {/* Filter Section */}
+      <section className="px-6 py-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Filters</h3>
+          <button
+            onClick={resetFilters}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md text-white text-sm"
+          >
+            Reset Filters
+          </button>
+        </div>
+        <div className="flex flex-col md:flex-row gap-4">
+          <select
+            value={selectedGenre}
+            onChange={(e) => {
+              console.log('Selected genre ID:', e.target.value);
+              setSelectedGenre(e.target.value);
+            }}
+            className="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring focus:border-red-500"
+          >
+            <option value="">All Genres</option>
+            {genres.map((genre) => (
+              <option key={genre.id} value={genre.id}>
+                {genre.name}
+              </option>
+            ))}
+          </select>
+
+          <div className="flex gap-2">
+            <input
+              type="number"
+              placeholder="Min Year"
+              value={yearRange.min}
+              onChange={(e) => setYearRange({ ...yearRange, min: e.target.value })}
+              className="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring focus:border-red-500 w-1/2"
+            />
+            <input
+              type="number"
+              placeholder="Max Year"
+              value={yearRange.max}
+              onChange={(e) => setYearRange({ ...yearRange, max: e.target.value })}
+              className="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring focus:border-red-500 w-1/2"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <input
+              type="number"
+              placeholder="Min Rating"
+              value={ratingRange.min}
+              onChange={(e) => setRatingRange({ ...ratingRange, min: e.target.value })}
+              className="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring focus:border-red-500 w-1/2"
+              step="0.1"
+              min="0"
+              max="10"
+            />
+            <input
+              type="number"
+              placeholder="Max Rating"
+              value={ratingRange.max}
+              onChange={(e) => setRatingRange({ ...ratingRange, max: e.target.value })}
+              className="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring focus:border-red-500 w-1/2"
+              step="0.1"
+              min="0"
+              max="10"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Hero Section */}
-      {searchTerm.trim() === '' && (
+      {searchTerm.trim() === '' && !selectedGenre && !yearRange.min && !yearRange.max && !ratingRange.min && !ratingRange.max && (
         <section className="text-center px-6 py-20">
           <h2 className="text-4xl md:text-6xl font-extrabold leading-tight">Stream. Discover. Enjoy.</h2>
           <p className="mt-6 text-lg max-w-xl mx-auto">
@@ -89,6 +210,18 @@ const LandingPage = () => {
       )}
 
       {/* Search Results */}
+      {error && (
+        <section className="px-6 py-10">
+          <p className="text-red-500">{error}</p>
+        </section>
+      )}
+      {searchResults.length === 0 && !error && (searchTerm || selectedGenre || yearRange.min || yearRange.max || ratingRange.min || ratingRange.max) && (
+        <section className="px-6 py-10">
+          <p className="text-gray-400">
+            No movies found. Try adjusting your search or filters.
+          </p>
+        </section>
+      )}
       {searchResults.length > 0 && (
         <section className="px-6 py-10">
           <h3 className="text-2xl font-bold mb-4">Search Results</h3>
@@ -113,8 +246,11 @@ const LandingPage = () => {
                       </div>
                     )}
                     <div className="p-4">
-                      <h4 className="text-lg font-semibold">{movie.title}</h4>
-                      <p className="text-sm text-gray-400">{movie.release_date}</p>
+                        <h2 className="text-lg font-semibold truncate">{movie.title}</h2>
+                        <div className='flex justify-center'>
+                        <p className="text-gray-400 text-sm">{movie.release_date?.split('-')[0]}</p>
+                        <p className="text-yellow-400 text-sm mt-1">⭐ {movie.vote_average.toFixed(1)}</p>
+                        </div>
                     </div>
                   </div>
                 );
@@ -137,9 +273,13 @@ const LandingPage = () => {
                     </div>
                   )}
                   <div className="p-4">
-                    <h4 className="text-lg font-semibold">{movie.title}</h4>
-                    <p className="text-sm text-gray-400">{movie.release_date}</p>
-                  </div>
+                        <h2 className="text-lg font-semibold truncate text-white">{movie.title}</h2>
+                        <div className='flex justify-between gap-18'>
+                        <p className="text-yellow-400 text-sm mt-1">⭐ {movie.vote_average.toFixed(1)}</p>
+                        <p className="text-gray-400 text-sm">{movie.release_date?.split('-')[0]}</p>
+
+                        </div>
+                    </div>
                 </div>
               );
             })}
@@ -148,7 +288,7 @@ const LandingPage = () => {
       )}
 
       {/* Movie Carousels */}
-      {searchTerm.trim() === '' && (
+      {searchTerm.trim() === '' && !selectedGenre && !yearRange.min && !yearRange.max && !ratingRange.min && !ratingRange.max && (
         <>
           <MovieCarousel
             title="Trending Now"
@@ -167,7 +307,7 @@ const LandingPage = () => {
 
       {/* Footer */}
       <footer className="py-8 px-6 text-center text-gray-400">
-        <p>&copy; {new Date().getFullYear()} MovieMania. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} MovieMania. All rights reserved.</p>
       </footer>
     </div>
   );
