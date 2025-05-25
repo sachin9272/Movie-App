@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import MovieCarousel from '../components/MovieCarousel';
-import { FaMoon, FaSun } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import MovieCarousel from '../components/MovieCarousel'
+import { FaHeart } from 'react-icons/fa';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL;
 
-const LandingPage = () => {
+const LandingPage = ({ favorites, toggleFavorite }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [page, setPage] = useState(1);
@@ -116,14 +117,21 @@ const LandingPage = () => {
       {/* Navbar */}
       <header className="flex flex-col md:flex-row justify-between items-center px-8 py-6 border-b border-gray-700 gap-4 md:gap-0">
         <h1 className="text-2xl font-bold text-red-500">MovieMania</h1>
-
-        <input
-          type="text"
-          placeholder="Search movies..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring focus:border-red-500 w-full md:w-1/3"
-        />
+        <div className="flex items-center gap-4">
+          <input
+            type="text"
+            placeholder="Search movies..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring focus:border-red-500 w-full md:w-64"
+          />
+          <Link
+            to="/favourite"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md text-white text-sm"
+          >
+            Favourites
+          </Link>
+        </div>
       </header>
 
       {/* Filter Section */}
@@ -201,7 +209,7 @@ const LandingPage = () => {
         <section className="text-center px-6 py-20">
           <h2 className="text-4xl md:text-6xl font-extrabold leading-tight">Stream. Discover. Enjoy.</h2>
           <p className="mt-6 text-lg max-w-xl mx-auto">
-            Watch your favorite movies and shows anytime, anywhere.
+            Watch your favourite movies and shows anytime, anywhere.
           </p>
           <button className="mt-8 px-6 py-3 bg-red-600 hover:bg-red-700 rounded-full text-white font-semibold text-lg transition">
             Explore Now
@@ -227,12 +235,16 @@ const LandingPage = () => {
           <h3 className="text-2xl font-bold mb-4">Search Results</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {searchResults.map((movie, index) => {
+              console.log('Rendering movie:', movie.title, 'Vote Average:', movie.vote_average);
+              const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+              const isFavorited = favorites.some((fav) => fav.id === movie.id);
+
               if (index === searchResults.length - 1) {
                 return (
                   <div
                     ref={lastMovieRef}
                     key={movie.id}
-                    className="bg-gray-900 rounded-lg overflow-hidden shadow-md"
+                    className="bg-gray-900 rounded-lg overflow-hidden shadow-md relative"
                   >
                     {movie.poster_path ? (
                       <img
@@ -245,12 +257,20 @@ const LandingPage = () => {
                         No Image
                       </div>
                     )}
-                    <div className="p-4">
-                        <h2 className="text-lg font-semibold truncate">{movie.title}</h2>
-                        <div className='flex justify-center'>
-                        <p className="text-gray-400 text-sm">{movie.release_date?.split('-')[0]}</p>
-                        <p className="text-yellow-400 text-sm mt-1">⭐ {movie.vote_average.toFixed(1)}</p>
-                        </div>
+                    <button
+                      onClick={() => toggleFavorite(movie)}
+                      className={`absolute top-2 right-2 p-2 rounded-full bg-black bg-opacity-50 z-10 ${
+                        isFavorited ? 'text-red-500' : 'text-white'
+                      } hover:text-red-600 transition-colors`}
+                      title={isFavorited ? 'Remove from favourites' : 'Add to favourites'}
+                    >
+                      <FaHeart />
+                      {console.log('Heart button rendered for:', movie.title, 'Favorited:', isFavorited)}
+                    </button>
+                    <div className="p-4 min-h-[100px]">
+                      <h2 className="text-lg font-semibold truncate">{movie.title}</h2>
+                      <p className="text-gray-400 text-sm">{movie.release_date?.split('-')[0] || 'N/A'}</p>
+                      <p className="text-yellow-500 text-sm mt-1">⭐ {rating}</p>
                     </div>
                   </div>
                 );
@@ -259,7 +279,7 @@ const LandingPage = () => {
               return (
                 <div
                   key={movie.id}
-                  className="bg-gray-900 rounded-lg overflow-hidden shadow-md"
+                  className="bg-gray-900 rounded-lg overflow-hidden shadow-md relative"
                 >
                   {movie.poster_path ? (
                     <img
@@ -272,14 +292,23 @@ const LandingPage = () => {
                       No Image
                     </div>
                   )}
-                  <div className="p-4">
-                        <h2 className="text-lg font-semibold truncate text-white">{movie.title}</h2>
-                        <div className='flex justify-between gap-18'>
-                        <p className="text-yellow-400 text-sm mt-1">⭐ {movie.vote_average.toFixed(1)}</p>
-                        <p className="text-gray-400 text-sm">{movie.release_date?.split('-')[0]}</p>
-
-                        </div>
+                  <button
+                    onClick={() => toggleFavorite(movie)}
+                    className={`absolute top-2 right-2 p-2 rounded-full bg-black bg-opacity-50 z-10 ${
+                      isFavorited ? 'text-red-500' : 'text-white'
+                    } hover:text-red-600 transition-colors`}
+                    title={isFavorited ? 'Remove from favourites' : 'Add to favourites'}
+                  >
+                    <FaHeart />
+                    {console.log('Heart button rendered for:', movie.title, 'Favorited:', isFavorited)}
+                  </button>
+                  <div className="p-4 min-h-[100px]">
+                    <h2 className="text-lg font-semibold text-white truncate">{movie.title}</h2>
+                    <div className='flex justify-between px-6 mt-2'>
+                        <p className="text-gray-400 text-sm">{movie.release_date?.split('-')[0] || 'N/A'}</p>
+                        <p className="text-yellow-500 text-sm mt-1">⭐ {rating}</p>
                     </div>
+                  </div>
                 </div>
               );
             })}
@@ -293,14 +322,20 @@ const LandingPage = () => {
           <MovieCarousel
             title="Trending Now"
             fetchUrl={`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
           />
           <MovieCarousel
             title="Top Rated"
             fetchUrl={`${BASE_URL}/movie/top_rated?api_key=${API_KEY}`}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
           />
           <MovieCarousel
             title="Upcoming"
             fetchUrl={`${BASE_URL}/movie/upcoming?api_key=${API_KEY}`}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
           />
         </>
       )}
