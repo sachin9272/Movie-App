@@ -9,6 +9,7 @@ const MovieCarousel = ({ title, fetchUrl, favorites, toggleFavorite }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        
         const response = await axios.get(fetchUrl);
         setMovies(response.data.results || []);
         console.log(`Fetched movies for ${title}:`, response.data.results);
