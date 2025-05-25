@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MovieCarousel from '../components/MovieCarousel'
 import { FaHeart } from 'react-icons/fa';
 
@@ -18,6 +18,7 @@ const LandingPage = ({ favorites, toggleFavorite }) => {
   const [error, setError] = useState(null);
   const observer = useRef();
   const debounceTimeout = useRef(null);
+  const navigate = useNavigate();
 
   // Fetch genres on component mount
   useEffect(() => {
@@ -116,7 +117,7 @@ const LandingPage = ({ favorites, toggleFavorite }) => {
     <div className="min-h-screen transition-colors duration-300">
       {/* Navbar */}
       <header className="flex flex-col md:flex-row justify-between items-center px-8 py-6 border-b border-gray-700 gap-4 md:gap-0">
-        <h1 className="text-2xl font-bold text-red-500">MovieMania</h1>
+        <h1 className="text-2xl font-bold text-red-500" onClick={()=>{navigate('/')}}>MovieMania</h1>
         <div className="flex items-center gap-4">
           <input
             type="text"
