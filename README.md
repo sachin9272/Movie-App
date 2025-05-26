@@ -72,13 +72,16 @@ npm run dev
 - **TMDB API Key**: Obtain from [The Movie Database (TMDB)](https://www.themoviedb.org/)
 
 
+
+
 ## 📸Screenshots
 
-1. Landing Page ![Screenshot 2025-05-26 015737](https://github.com/user-attachments/assets/077227c5-e8dd-48de-87f3-d89e788a2c6f)
-2. Movie Search ![Screenshot 2025-05-26 015852](https://github.com/user-attachments/assets/2f1dc523-fb9e-447a-a26f-94b91891588c)
-3. Movie Filter ![Screenshot 2025-05-26 020014](https://github.com/user-attachments/assets/86950a4b-57c4-47c3-9dad-b2c09795ec1a)
-4. Favourite Movie ![Screenshot 2025-05-26 020028](https://github.com/user-attachments/assets/52adcc05-a9b0-4f95-b3f6-658b24c76c22)
-5. Trending Movie ![Screenshot 2025-05-26 020046](https://github.com/user-attachments/assets/ade544ff-38e2-4789-b15e-18ebb88c1bd0)
+1. Landing Page ![Screenshot 2025-05-27 000849](https://github.com/user-attachments/assets/aa6f4a0e-1211-4fe2-a44c-5df05132ba74)
+2. Movie Search ![Screenshot 2025-05-27 000922](https://github.com/user-attachments/assets/dbecdec2-9664-4fb7-a2cf-a2e1c734246e)
+3. Movie Filter ![Screenshot 2025-05-27 001634](https://github.com/user-attachments/assets/0dcd6c8f-9611-4d78-8fd7-d417678e9df4)
+4. Favourite Movie ![Screenshot 2025-05-27 000943](https://github.com/user-attachments/assets/02c46f19-02ae-4540-be7c-beaa859811df)
+5. Trending Movie ![Screenshot 2025-05-27 001003](https://github.com/user-attachments/assets/a071e06f-17dc-48f2-9303-bbd5f6fdef96)
+
 
 ## 📬 Contact
 
