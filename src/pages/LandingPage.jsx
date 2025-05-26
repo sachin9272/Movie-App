@@ -117,7 +117,7 @@ const LandingPage = ({ favorites, toggleFavorite }) => {
     <div className="min-h-screen transition-colors duration-300">
       {/* Navbar */}
       <header className="flex flex-col md:flex-row justify-between items-center px-8 py-6 border-b border-gray-700 gap-4 md:gap-0">
-        <h1 className="text-2xl font-bold text-red-500" onClick={()=>{navigate('/')}}>MovieMania</h1>
+        <h1 className="text-2xl font-bold text-red-500" onClick={()=>{navigate('/')}}>Movie App</h1>
         <div className="flex items-center gap-4">
           <input
             type="text"
@@ -342,9 +342,7 @@ const LandingPage = ({ favorites, toggleFavorite }) => {
       )}
 
       {/* Footer */}
-      <footer className="py-8 px-6 text-center text-gray-400">
-        <p>© {new Date().getFullYear()} MovieMania. All rights reserved.</p>
-      </footer>
+      
     </div>
   );
 };

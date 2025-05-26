@@ -16,7 +16,7 @@ const FavouritePage = ({ favorites, removeFavorite }) => {
     <div className="min-h-screen">
       {/* Navbar */}
       <header className="flex flex-col md:flex-row justify-between items-center px-8 py-6 border-b border-gray-700 gap-4 md:gap-0">
-        <h1 className="text-2xl font-bold text-red-500">MovieMania</h1>
+        <h1 className="text-2xl font-bold text-red-500">Movie App</h1>
         <Link
           to="/"
           className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md text-white text-sm"
@@ -66,11 +66,6 @@ const FavouritePage = ({ favorites, removeFavorite }) => {
           </div>
         )}
       </section>
-
-      {/* Footer */}
-      <footer className="py-8 px-6 text-center text-gray-400">
-        <p>© {new Date().getFullYear()} MovieMania. All rights reserved.</p>
-      </footer>
     </div>
   );
 };

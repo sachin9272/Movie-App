@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import FavouritePage from './pages/FavouritePage';
+import Footer from './components/Footer';
 
 const App = () => {
   // Initialize favorites synchronously from localStorage
@@ -63,7 +64,7 @@ const App = () => {
   };
 
   return (
-    <Router>
+    <Router basename="/Movie-App">
       <Routes>
         <Route
           path="/"
@@ -74,6 +75,7 @@ const App = () => {
           element={<FavouritePage favorites={favorites} removeFavorite={removeFavorite} />}
         />
       </Routes>
+      <Footer/>
     </Router>
   );
 };
