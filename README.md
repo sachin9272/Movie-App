@@ -1,8 +1,8 @@
-## MovieMania 📽️
+## Movie App 📽️
 
 
 
-MovieMania is a modern, responsive web application built with React, allowing users to discover, search, and favorite movies using the TMDB API. With an intuitive UI styled with Tailwind CSS, users can explore trending, top-rated, and upcoming movies, apply advanced filters, and save favorites that persist across sessions using localStorage. The app supports client-side routing with React Router and is optimized for deployment to platforms like GitHub Pages, Netlify, and Vercel.
+Movie App is a modern, responsive web application built with React, allowing users to discover, search, and favorite movies using the TMDB API. With an intuitive UI styled with Tailwind CSS, users can explore trending, top-rated, and upcoming movies, apply advanced filters, and save favorites that persist across sessions using localStorage. The app supports client-side routing with React Router and is optimized for deployment to platforms like GitHub Pages, Netlify, and Vercel.
 
 ## 🚀Features
 
@@ -21,7 +21,7 @@ https://sachin9272.github.io/Movie-App/
 1. Clone the Repository:
 
 ```bash
-git clone https://github.com/yourusername/Movie-App.git
+git clone https://github.com/sachin9272/Movie-App.git
 cd Movie-App
 ```
 
